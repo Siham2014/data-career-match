@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, MapPin, Globe, ExternalLink, Filter } from "lucide-react";
-import { getRecommendations, type Job } from "@/lib/api";
+import { Building2, MapPin, Globe, ExternalLink, Filter, Upload, FileText, Loader2, CheckCircle2 } from "lucide-react";
+import { getRecommendations, uploadCV, extractSkills, type Job } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScoreBadge } from "@/components/ScoreBadge";
@@ -11,16 +11,32 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/recommendations")({
-  head: () => ({ meta: [{ title: "Recommendations — Job Intelligent" }, { name: "description", content: "Top data jobs ranked against your CV skills." }] }),
+  head: () => ({ meta: [
+    { title: "Recommendations — Job Intelligent" },
+    { name: "description", content: "Upload your CV and get the top data jobs ranked against your skills." },
+  ] }),
   component: RecommendationsPage,
 });
 
 function RecommendationsPage() {
-  const { data: jobs = [], isLoading } = useQuery({ queryKey: ["recs"], queryFn: () => getRecommendations() });
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<"idle"|"uploading"|"extracting"|"done">("idle");
+  const [skills, setSkills] = useState<string[]>([]);
+
+  const onAnalyze = async () => {
+    if (!file) return;
+    setStatus("uploading");
+    const { uploadId } = await uploadCV(file);
+    setStatus("extracting");
+    const res = await extractSkills(uploadId);
+    setSkills(res.skills);
+    setStatus("done");
+  };
+
+  const { data: jobs = [], isLoading } = useQuery({ queryKey: ["recs", skills], queryFn: () => getRecommendations(skills) });
   const [minScore, setMinScore] = useState(0);
   const [search, setSearch] = useState("");
   const [sources, setSources] = useState<Set<string>>(new Set());
-
   const allSources = useMemo(() => Array.from(new Set(jobs.map((j) => j.source))), [jobs]);
 
   const filtered = jobs.filter((j) =>
@@ -32,22 +48,59 @@ function RecommendationsPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10">
       <h1 className="text-3xl font-bold tracking-tight">Recommendations</h1>
-      <p className="mt-2 text-muted-foreground">{filtered.length} job{filtered.length !== 1 && "s"} matching your profile.</p>
+      <p className="mt-2 text-muted-foreground">Upload your CV to extract skills, then browse jobs ranked by fit.</p>
+
+      {/* Upload card */}
+      <section className="mt-8 rounded-xl border bg-card p-6 shadow-[var(--shadow-card)]">
+        <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 text-center transition hover:bg-primary/10">
+            <Upload className="h-8 w-8 text-primary" />
+            <span className="mt-2 text-sm font-medium">{file ? file.name : "Drop your CV or click to browse"}</span>
+            <span className="mt-0.5 text-xs text-muted-foreground">PDF, DOCX, TXT — up to 10MB</span>
+            <input type="file" accept=".pdf,.docx,.txt" className="hidden"
+              onChange={(e) => { setFile(e.target.files?.[0] ?? null); setStatus("idle"); setSkills([]); }} />
+          </label>
+          <Button onClick={onAnalyze} disabled={!file || status === "uploading" || status === "extracting"} size="lg" className="md:self-stretch">
+            {status === "uploading" || status === "extracting" ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {status === "uploading" ? "Uploading…" : "Extracting…"}</>
+            ) : "Analyze CV"}
+          </Button>
+        </div>
+
+        {file && status !== "done" && (
+          <div className="mt-4 flex items-center gap-3 rounded-lg border bg-secondary/40 p-3 text-sm">
+            <FileText className="h-4 w-4 text-primary" />
+            <span className="flex-1 truncate">{file.name}</span>
+            <span className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</span>
+          </div>
+        )}
+
+        {status === "done" && (
+          <div className="mt-5 rounded-lg border bg-secondary/40 p-4">
+            <div className="flex items-center gap-2 text-success">
+              <CheckCircle2 className="h-4 w-4" />
+              <span className="text-sm font-medium">Extracted skills</span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {skills.map((s) => (
+                <Badge key={s} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/15">{s}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
         <aside className="h-fit rounded-xl border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-20">
           <div className="flex items-center gap-2 text-sm font-semibold"><Filter className="h-4 w-4 text-primary" /> Filters</div>
-
           <div className="mt-5">
             <label className="text-xs font-medium text-muted-foreground">Search</label>
             <Input placeholder="Title, company…" className="mt-2" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-
           <div className="mt-5">
             <label className="text-xs font-medium text-muted-foreground">Min. score: <span className="font-semibold text-foreground">{minScore}%</span></label>
             <Slider className="mt-3" value={[minScore]} max={100} step={5} onValueChange={(v) => setMinScore(v[0])} />
           </div>
-
           <div className="mt-5">
             <div className="text-xs font-medium text-muted-foreground">Source</div>
             <div className="mt-2 space-y-2">
@@ -95,7 +148,6 @@ function JobCard({ job }: { job: Job }) {
         </div>
         <ScoreBadge score={job.score} />
       </div>
-
       <div className="mt-4">
         <div className="text-xs font-medium text-muted-foreground">Matched skills</div>
         <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -104,7 +156,6 @@ function JobCard({ job }: { job: Job }) {
           ))}
         </div>
       </div>
-
       <div className="mt-3">
         <div className="text-xs font-medium text-muted-foreground">Job skills</div>
         <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -113,7 +164,6 @@ function JobCard({ job }: { job: Job }) {
           ))}
         </div>
       </div>
-
       <div className="mt-auto pt-5">
         <Button variant="outline" className="w-full">View details <ExternalLink className="ml-2 h-3.5 w-3.5" /></Button>
       </div>

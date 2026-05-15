@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Upload, Sparkles, BarChart3, Database } from "lucide-react";
+import { Home, Info, Layers, Workflow, Database, Sparkles, BarChart3 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader,
@@ -7,7 +7,10 @@ import {
 
 const items = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Upload CV", url: "/upload", icon: Upload },
+  { title: "About", url: "/about", icon: Info },
+  { title: "Services", url: "/services", icon: Layers },
+  { title: "Pipeline", url: "/pipeline", icon: Workflow },
+  { title: "Data Warehouse", url: "/warehouse", icon: Database },
   { title: "Recommendations", url: "/recommendations", icon: Sparkles },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
 ];

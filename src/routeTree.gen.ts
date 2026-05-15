@@ -9,14 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WarehouseRouteImport } from './routes/warehouse'
 import { Route as UploadRouteImport } from './routes/upload'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as RecommendationsRouteImport } from './routes/recommendations'
+import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WarehouseRoute = WarehouseRouteImport.update({
+  id: '/warehouse',
+  path: '/warehouse',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UploadRoute = UploadRouteImport.update({
   id: '/upload',
   path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecommendationsRoute = RecommendationsRouteImport.update({
@@ -24,9 +38,19 @@ const RecommendationsRoute = RecommendationsRouteImport.update({
   path: '/recommendations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PipelineRoute = PipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,45 +61,100 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/pipeline': typeof PipelineRoute
   '/recommendations': typeof RecommendationsRoute
+  '/services': typeof ServicesRoute
   '/upload': typeof UploadRoute
+  '/warehouse': typeof WarehouseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/pipeline': typeof PipelineRoute
   '/recommendations': typeof RecommendationsRoute
+  '/services': typeof ServicesRoute
   '/upload': typeof UploadRoute
+  '/warehouse': typeof WarehouseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/pipeline': typeof PipelineRoute
   '/recommendations': typeof RecommendationsRoute
+  '/services': typeof ServicesRoute
   '/upload': typeof UploadRoute
+  '/warehouse': typeof WarehouseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analytics' | '/recommendations' | '/upload'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/analytics'
+    | '/pipeline'
+    | '/recommendations'
+    | '/services'
+    | '/upload'
+    | '/warehouse'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/recommendations' | '/upload'
-  id: '__root__' | '/' | '/analytics' | '/recommendations' | '/upload'
+  to:
+    | '/'
+    | '/about'
+    | '/analytics'
+    | '/pipeline'
+    | '/recommendations'
+    | '/services'
+    | '/upload'
+    | '/warehouse'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/analytics'
+    | '/pipeline'
+    | '/recommendations'
+    | '/services'
+    | '/upload'
+    | '/warehouse'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  PipelineRoute: typeof PipelineRoute
   RecommendationsRoute: typeof RecommendationsRoute
+  ServicesRoute: typeof ServicesRoute
   UploadRoute: typeof UploadRoute
+  WarehouseRoute: typeof WarehouseRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/warehouse': {
+      id: '/warehouse'
+      path: '/warehouse'
+      fullPath: '/warehouse'
+      preLoaderRoute: typeof WarehouseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/upload': {
       id: '/upload'
       path: '/upload'
       fullPath: '/upload'
       preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recommendations': {
@@ -85,11 +164,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecommendationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pipeline': {
+      id: '/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof PipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics': {
       id: '/analytics'
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,10 +197,24 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AnalyticsRoute: AnalyticsRoute,
+  PipelineRoute: PipelineRoute,
   RecommendationsRoute: RecommendationsRoute,
+  ServicesRoute: ServicesRoute,
   UploadRoute: UploadRoute,
+  WarehouseRoute: WarehouseRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
