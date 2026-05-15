@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WarehouseRouteImport } from './routes/warehouse'
-import { Route as UploadRouteImport } from './routes/upload'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as RecommendationsRouteImport } from './routes/recommendations'
 import { Route as PipelineRouteImport } from './routes/pipeline'
@@ -21,11 +20,6 @@ import { Route as IndexRouteImport } from './routes/index'
 const WarehouseRoute = WarehouseRouteImport.update({
   id: '/warehouse',
   path: '/warehouse',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UploadRoute = UploadRouteImport.update({
-  id: '/upload',
-  path: '/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -66,7 +60,6 @@ export interface FileRoutesByFullPath {
   '/pipeline': typeof PipelineRoute
   '/recommendations': typeof RecommendationsRoute
   '/services': typeof ServicesRoute
-  '/upload': typeof UploadRoute
   '/warehouse': typeof WarehouseRoute
 }
 export interface FileRoutesByTo {
@@ -76,7 +69,6 @@ export interface FileRoutesByTo {
   '/pipeline': typeof PipelineRoute
   '/recommendations': typeof RecommendationsRoute
   '/services': typeof ServicesRoute
-  '/upload': typeof UploadRoute
   '/warehouse': typeof WarehouseRoute
 }
 export interface FileRoutesById {
@@ -87,7 +79,6 @@ export interface FileRoutesById {
   '/pipeline': typeof PipelineRoute
   '/recommendations': typeof RecommendationsRoute
   '/services': typeof ServicesRoute
-  '/upload': typeof UploadRoute
   '/warehouse': typeof WarehouseRoute
 }
 export interface FileRouteTypes {
@@ -99,7 +90,6 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/recommendations'
     | '/services'
-    | '/upload'
     | '/warehouse'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -109,7 +99,6 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/recommendations'
     | '/services'
-    | '/upload'
     | '/warehouse'
   id:
     | '__root__'
@@ -119,7 +108,6 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/recommendations'
     | '/services'
-    | '/upload'
     | '/warehouse'
   fileRoutesById: FileRoutesById
 }
@@ -130,7 +118,6 @@ export interface RootRouteChildren {
   PipelineRoute: typeof PipelineRoute
   RecommendationsRoute: typeof RecommendationsRoute
   ServicesRoute: typeof ServicesRoute
-  UploadRoute: typeof UploadRoute
   WarehouseRoute: typeof WarehouseRoute
 }
 
@@ -141,13 +128,6 @@ declare module '@tanstack/react-router' {
       path: '/warehouse'
       fullPath: '/warehouse'
       preLoaderRoute: typeof WarehouseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/upload': {
-      id: '/upload'
-      path: '/upload'
-      fullPath: '/upload'
-      preLoaderRoute: typeof UploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -202,7 +182,6 @@ const rootRouteChildren: RootRouteChildren = {
   PipelineRoute: PipelineRoute,
   RecommendationsRoute: RecommendationsRoute,
   ServicesRoute: ServicesRoute,
-  UploadRoute: UploadRoute,
   WarehouseRoute: WarehouseRoute,
 }
 export const routeTree = rootRouteImport
