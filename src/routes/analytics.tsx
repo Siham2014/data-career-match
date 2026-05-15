@@ -25,7 +25,28 @@ function AnalyticsPage() {
       <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
       <p className="mt-2 text-muted-foreground">A snapshot of the data job market.</p>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {(() => {
+          const total = data.jobs_by_source.reduce((a, b) => a + b.value, 0);
+          const sources = data.jobs_by_source.length;
+          const skills = data.top_skills.length;
+          const locations = data.top_locations.length;
+          const kpis = [
+            { label: "Total job offers", value: total },
+            { label: "Sources", value: sources },
+            { label: "Tracked skills", value: skills },
+            { label: "Top locations", value: locations },
+          ];
+          return kpis.map((k) => (
+            <div key={k.label} className="rounded-xl border bg-card p-5 shadow-[var(--shadow-card)]">
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{k.label}</div>
+              <div className="mt-2 text-3xl font-bold text-foreground">{k.value}</div>
+            </div>
+          ));
+        })()}
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <ChartCard title="Jobs by source">
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
